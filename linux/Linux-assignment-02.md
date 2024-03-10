@@ -6,7 +6,7 @@
 
 2- What is the difference between mv and cp commands in Linux?
 
-3- If you have a configuration file in Linux, in which directory it can be found?
+3- If you have a configuration file in Linux, in which directory it can it be found?
 
 4- How do you know which Linux distribution or flavor you are using?
 

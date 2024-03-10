@@ -62,5 +62,5 @@
 
 30- What do you use for documentation in your current position?
 
-31- How do you keep track of you what you are working on in your current position?
+31- How do you keep track of what you are working on in your current position?
 ```
