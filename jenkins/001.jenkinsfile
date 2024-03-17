@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'FIRST_NAME', defaultValue: '', description: 'Enter your first name')
+        string(name: 'LAST_NAME', defaultValue: '', description: 'Enter your last name')
+        string(name: 'PIN', defaultValue: '', description: 'Enter your PIN')
+        choice(name: 'FRUITS', choices: ['', 'Apple', 'Mango', 'Banana'], description: 'Select your favorite fruit')
+        booleanParam(name: 'BOOL_PARAM', defaultValue: false, description: 'Boolean parameter')
+    }
+
+    stages {
+        stage('Sample Stage') {
+            steps {
+                script {
+                    echo "Hello ${params.FIRST_NAME} ${params.LAST_NAME}!"
+                    echo "Your PIN is: ${params.PIN}"
+                    echo "Your favorite fruit is: ${params.FRUITS}"
+                    echo "Boolean parameter value: ${params.BOOL_PARAM}"
+                }
+            }
+        }
+    }
+}
