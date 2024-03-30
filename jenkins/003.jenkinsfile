@@ -1,0 +1,77 @@
+pipeline {
+    agent any
+
+    // environment {
+    //     // Define the token for accessing the repository
+    //     GIT_TOKEN = credentials('del-org-github-auth')
+    // }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    // Clone the repository using the token
+                    checkout([$class: 'GitSCM',
+                        branches: [[name: 'main']],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/DEL-ORG/s8-learning-git.git',
+                            credentialsId: 'github_auth'
+                        ]]
+                    ])
+                }
+            }
+        }
+    }
+}
+
+
+// pipeline {
+//     agent any
+//     // options {
+//     //     buildDiscarder(logRotator(numToKeepStr: '10'))
+//     //     skipDefaultCheckout(true)
+//     //     disableConcurrentBuilds()
+//     //     timeout (time: 10, unit: 'MINUTES')
+//     //     timestamps()
+//     // }
+//     parameters { 
+//         string (name: 'branchName', defaultValue: 'main', description: 'The release branch that you want to checkout')
+//     }
+//     stages {
+//          stage ('Checkout') {
+//             steps {
+//                checkout([
+//                    $class: 'GitSCM',
+//                    branches: [[name: "*/${params.branchName}"]],
+//                    doGenerateSubmoduleConfigurations: false,
+//                    extensions: [[$class: 'LocalBranch']],
+//                    submoduleCfg: [],
+//                    userRemoteConfigs: [[
+//                    url: 'https://github.com/repo',
+//                    credentialsId: 'del-org-github-auth'
+//                    ]]
+//                ])
+//             }
+//         }
+//     }
+// }
+
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Define SSH key
+                sshagent(['ssh']) {
+                    // Clone repository using SSH
+                    git branch: 'main',
+                        credentialsId: 'ssh',
+                        url: 'git@github.com:DEL-ORG/s8-learning-git.git'
+                }
+            }
+        }
+    }
+}
