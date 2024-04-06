@@ -1,0 +1,95 @@
+pipeline {
+    agent { label 'SERVER04' }
+    
+    parameters {
+        string(name: 'FIRST_NAME', defaultValue: '', description: 'Enter your first name')
+        string(name: 'LAST_NAME', defaultValue: '', description: 'Enter your last name')
+         string(name: 'PASSWORD', defaultValue: '', description: 'Enter your password')
+    }
+
+    stages {
+        stage('Gather Information') {
+            steps {
+                script {
+                    echo "Hello ${params.FIRST_NAME} ${params.LAST_NAME}!"
+                }
+            }
+        }
+        stage('Print Those Information') {
+            steps {
+                script {
+                    echo "Hello ${params.FIRST_NAME} ${params.LAST_NAME}!"
+                }
+            }
+        }
+        stage('Creating a User') {
+            steps {
+                script {
+                    sh """
+                       sudo useradd -m ${params.FIRST_NAME} || true
+                       sudo usermod -c "${params.FIRST_NAME} ${params.LAST_NAME}" ${params.FIRST_NAME}
+                       sudo echo "${params.FIRST_NAME}:${params.PASSWORD}" | sudo chpasswd
+                    """
+                }
+            }
+        }
+        stage('Check if the user was created') {
+            steps {
+                script {
+                    sh """
+                        cat /etc/passwd
+                    """
+                }
+            }
+        }
+    }
+}
+
+
+
+pipeline {
+    agent { label 'SERVER04' }
+    
+    parameters {
+        string(name: 'FIRST_NAME', defaultValue: '', description: 'Enter your first name')
+        string(name: 'LAST_NAME', defaultValue: '', description: 'Enter your last name')
+        password(name: 'PASSWORD', defaultValue: '', description: 'Enter your password')
+    }
+
+    stages {
+        stage('Gather Information') {
+            steps {
+                script {
+                    echo "Hello ${params.FIRST_NAME} ${params.LAST_NAME}!"
+                }
+            }
+        }
+        stage('Print Those Information') {
+            steps {
+                script {
+                    echo "Hello ${params.FIRST_NAME} ${params.LAST_NAME}!"
+                }
+            }
+        }
+        stage('Creating a User') {
+            steps {
+                script {
+                    sh """
+                       sudo useradd -m ${params.FIRST_NAME} || true
+                       sudo usermod -c "${params.FIRST_NAME} ${params.LAST_NAME}" ${params.FIRST_NAME}
+                       sudo echo "${params.FIRST_NAME}:${params.PASSWORD}" | sudo chpasswd
+                    """
+                }
+            }
+        }
+        stage('Check if the user was created') {
+            steps {
+                script {
+                    sh """
+                        cat /etc/passwd
+                    """
+                }
+            }
+        }
+    }
+}
