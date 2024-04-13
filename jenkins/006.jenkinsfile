@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'IMAGE_NAME', defaultValue: '', description: '')
+    }
+    stages {
+        stage('list all docker images') {
+            steps {
+                script {
+                    sh """
+                        docker images
+                    """
+                }
+            }
+        }
+        stage('Pulling docker images') {
+            steps {
+                script {
+                    sh """
+                        docker pull httpd
+                        docker images
+                    """
+                }
+            }
+        }
+        // stage('run an image to create a container') {
+        //     steps {
+        //         script {
+        //             sh """
+        //                 docker run -itd --name ${params.IMAGE_NAME} httpd 
+        //                 docker ps |grep ${params.IMAGE_NAME}
+        //             """
+        //         }
+        //     }
+        // }
+        stage('login into the container') {
+            steps {
+                script {
+                    sh """
+                        docker exec -it ${params.IMAGE_NAME} bash
+                        ls -l
+                    """
+                }
+            }
+        }
+    }
+}

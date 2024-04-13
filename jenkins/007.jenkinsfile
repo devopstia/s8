@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'IMAGE_NAME', defaultValue: '', description: '')
+    }
+    stages {
+        stage('create a dockerfile') {
+            steps {
+                script {
+                    sh """
+cat << EOF > Dockerfile
+FROM ubuntu
+RUN apt update
+RUN apt install apache2 -y
+RUN useradd tia
+RUN mkdir /tia
+EOF
+                    """
+                }
+            }
+        }
+        stage('Check the dockerfile') {
+            steps {
+                script {
+                    sh """
+                        ls -l
+                        cat Dockerfile
+                    """
+                }
+            }
+        }
+        stage('login into the container') {
+            steps {
+                script {
+                    sh """
+                        docker build -t ${params.IMAGE_NAME} .
+                        docker images
+                    """
+                }
+            }
+        }
+    }
+}
