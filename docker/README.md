@@ -10,5 +10,6 @@ docker run -itd --name s8tia11 ubuntu bash
 
 docker exec -it s8tia13 bash
 
-docker -t 
+docker build -t 
 ```
+![alt text](image.png)
