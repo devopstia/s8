@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_CREDENTIAL_ID = 'del-docker-hub-auth'
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Login to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIAL_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Use Docker CLI to login
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    sh 'ls'
+                }
+            }
+        }
+    }
+}
