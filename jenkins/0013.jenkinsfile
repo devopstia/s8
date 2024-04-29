@@ -5,6 +5,10 @@ pipeline {
         DOCKER_REGISTERY = ""
     }
 
+    triggers {
+        githubPush()
+    }
+
     options {
         timeout(time: 1, unit: 'HOURS') // Set timeout for the entire pipeline
         timestamps() // Add timestamps to the console output

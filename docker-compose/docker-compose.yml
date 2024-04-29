@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  application01:
+    image: devopseasylearning/alpha-application-01:latest
+    ports:
+      - "3381:80" # Adjust port as needed
+    restart: always
+    networks:
+      - s8-session # Change this to your desired network name
+
+  application02:
+    image: devopseasylearning/alpha-application-02:latest
+    ports:
+      - "3382:80" # Adjust port as needed
+    restart: always
+    networks:
+      - s8-session # Change this to your desired network name
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - "3383:8080" # Jenkins web interface
+      - "50000:50000" # Jenkins agent port
+    restart: always
+    networks:
+      - s8-session # Change this to your desired network name
+
+  httpd:
+    image: httpd:latest
+    ports:
+      - "3384:80" # Adjust port as needed
+    restart: always
+    networks:
+      - s8-session # Change this to your desired network name
+
+networks:
+  s8-session:
+    driver: bridge
