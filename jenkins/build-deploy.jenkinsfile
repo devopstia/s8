@@ -109,3 +109,357 @@ pipeline {
         }
     }
 }
+
+//=====================================================
+pipeline {
+    agent any
+    environment {
+        DOCKER_HUB_USERNAME="devopseasylearning"
+        ALPHA_APPLICATION_01_REPO="alpha-application-01"
+        ALPHA_APPLICATION_02_REPO="alpha-application-02"
+        DOCKER_CREDENTIAL_ID = 's8-test-docker-hub-auth'
+    }
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 's8tia', description: '')
+        string(name: 'APP1_TAG', defaultValue: 'latest', description: '')
+        string(name: 'APP2_TAG', defaultValue: 'latest', description: '')
+        string(name: 'PORT_ON_DOCKER_HOST_APP_1', defaultValue: '3381', description: '')
+        string(name: 'PORT_ON_DOCKER_HOST_APP_2', defaultValue: '3382', description: '')
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    git credentialsId: 'jenkins-ssh-agents-private-key',
+                        url: 'git@github.com:DEL-ORG/s8-web-2.git',
+                        branch: "${params.BRANCH_NAME}"
+                }
+            }
+        }
+        stage('Checking the code') {
+            steps {
+                script {
+                    sh """
+                        ls -l
+                    """ 
+                }
+            }
+        }
+        stage('Building application 01') {
+            steps {
+                script {
+                    sh """
+                        docker build -t ${env.DOCKER_HUB_USERNAME}/${env.ALPHA_APPLICATION_01_REPO}:${params.APP1_TAG} .
+                        docker images |grep ${params.APP1_TAG}
+                    """ 
+                }
+            }
+        }
+        stage('Building application 02') {
+            steps {
+                script {
+                    sh """
+                        pwd
+                        ls -l
+                        docker build -t "${env.DOCKER_HUB_USERNAME}"/"${env.ALPHA_APPLICATION_02_REPO}":"${params.APP2_TAG}" -f application-02.Dockerfile .
+                        docker images |grep ${params.APP2_TAG}
+                    """ 
+                }
+            }
+        }
+        stage('Login into') {
+            steps {
+                script {
+                    // Login to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: "s8-test-docker-hub-auth", 
+                    usernameVariable: 'DOCKER_USERNAME', 
+                    passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Use Docker CLI to login
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                    }
+                }
+            }
+        }
+        stage('Pushing application 01 into DockerHub') {
+            steps {
+                script {
+                    sh """
+                        docker push ${env.DOCKER_HUB_USERNAME}/${env.ALPHA_APPLICATION_01_REPO}:${params.APP1_TAG}
+                    """
+                }
+            }
+        }
+        stage('Pushing application 02 into DockerHub') {
+            steps {
+                script {
+                    sh """
+                        docker push ${env.DOCKER_HUB_USERNAME}/${env.ALPHA_APPLICATION_02_REPO}:${params.APP2_TAG}
+                    """
+                }
+            }
+        }
+        stage('Deploying the application 01') {
+            steps {
+                script {
+                    sh """
+                        docker run -itd -p ${params.PORT_ON_DOCKER_HOST_APP_1}:80  ${env.DOCKER_HUB_USERNAME}/${env.ALPHA_APPLICATION_01_REPO}:${params.APP1_TAG}
+                        sleep 5
+                        docker ps 
+                    """ 
+                }
+            }
+        }
+        stage('Deploying the application 02') {
+            steps {
+                script {
+                    sh """
+                        docker run -itd -p ${params.PORT_ON_DOCKER_HOST_APP_2}:80  ${env.DOCKER_HUB_USERNAME}/${env.ALPHA_APPLICATION_02_REPO}:${params.APP2_TAG}
+                        sleep 5
+                        docker ps 
+                    """ 
+                }
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent {
+        label "master"
+    }
+    stages {
+        stage('Displaying Environment Variables') {
+            steps {
+                echo "The build number is: ${BUILD_NUMBER}"
+                echo "The job name is: ${JOB_NAME}"
+                echo "The Jenkins home directory is: ${JENKINS_HOME}"
+                echo "The Jenkins URL is: ${JENKINS_URL}"
+                echo "The build URL is: ${BUILD_URL}"
+                echo "The job URL is: ${JOB_URL}"
+                echo "The workspace is: ${WORKSPACE}" 
+                echo "BUILD_DISPLAY_NAME: ${BUILD_DISPLAY_NAME}" 
+                // echo "BUILD_TIMESTAMP: ${BUILD_TIMESTAMP}" 
+                echo "JOB_DISPLAY_URL: ${JOB_DISPLAY_URL}" 
+                echo "BUILD_URL_ANCHOR: ${BUILD_URL}/console"  
+                echo "WORKSPACE: ${WORKSPACE}"  
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh "printenv"
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent any
+    
+    stages {
+        stage ('Setting Up Variables') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        sh """
+                            echo "BUILD_USER -- full name of user started build: $BUILD_USER"
+                            echo "BUILD_USER_FIRST_NAME -- first name of user started build: $BUILD_USER_FIRST_NAME"
+                            echo "BUILD_USER_LAST_NAME -- last name of user started build: $BUILD_USER_LAST_NAME"
+                            echo "BUILD_USER_ID -- id of user started build: $BUILD_USER_ID"
+                            echo "BUILD_USER_EMAIL -- email of user started build: $BUILD_USER_EMAIL"
+                        """
+                    }
+                }
+            }
+        }
+        stage ('Clean up') {
+            steps {
+                cleanWs()
+            }
+        }
+    }
+}
+
+//======================================================
+pipeline {
+    agent any
+    
+    triggers {
+        githubPush()
+    }
+    options {
+        timeout(time: 10, unit: 'MINUTES') // Timeout for the entire pipeline
+        buildDiscarder(logRotator(numToKeepStr: '7')) // Discard old builds to save disk space
+        disableConcurrentBuilds() // Ensures that only one build can run at a time
+        timestamps() // Adds timestamps to the console output
+        skipDefaultCheckout() // Skips the default checkout of source code, useful if you're doing a custom checkout
+        retry(3) // Automatically retries the entire pipeline up to 3 times if it fails
+    }
+    environment {
+        DOCKER_HUB_USERNAME="devopseasylearning"
+        ALPHA_APPLICATION_01_REPO="alpha-application-01"
+        ALPHA_APPLICATION_02_REPO="alpha-application-02"
+        DOCKER_CREDENTIAL_ID = 's8-test-docker-hub-auth'
+    }
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 's8tia', description: '')
+        string(name: 'APP1_TAG', defaultValue: 'latest', description: '')
+        string(name: 'APP2_TAG', defaultValue: 'latest', description: '')
+        string(name: 'PORT_ON_DOCKER_HOST', defaultValue: '', description: '')
+    }
+    stages {
+        stage ('Check Allow Users') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        def build_id = env.BUILD_USER_ID
+                        def build_user = env.BUILD_USER
+                        echo "build_id : $build_id"
+                        if (build_id in ['s8abiola', 's8mike', 'admin']) {
+                            echo "Hi $build_user, You are allowed to run this job"
+                        } else {
+                            error "Hi $build_user, You are not allowed to run this job"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Sanity Check') {
+            steps {
+                script {
+                    sanity_check()
+                }
+            }
+        }
+        stage('Clone Repository') {
+            when {
+                expression {
+                    params.BRANCH_NAME == 's8tia'
+                }
+            }
+            steps {
+                script {
+                    git credentialsId: 'jenkins-ssh-agents-private-key',
+                        url: 'git@github.com:DEL-ORG/s8-web-2.git',
+                        branch: "${params.BRANCH_NAME}"
+                }
+            }
+        }
+        stage('Building Sonar Image') {
+            steps {
+                script {
+                    dir("${WORKSPACE}/sonar-scanner") {
+                        sh """
+                        docker build -t ${env.DOCKER_HUB_USERNAME}/s8-sonar-scanner:latest  .
+                        docker images
+                        """
+                    }
+                }
+            }
+        }
+        stage('SonarQube analysis') {
+            steps {
+                script {
+                    dir("${WORKSPACE}") {
+                        docker.image("devopseasylearning/s8-sonar-scanner:latest").inside('-u 0:0') {
+                            withSonarQubeEnv('SonarScanner') {
+                                sh """
+                                    ls -l 
+                                    pwd
+                                    sonar-scanner -v
+                                    sonar-scanner
+                                """
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Building Application 01') {
+            when {
+                expression {
+                    params.BRANCH_NAME == 's8tia'
+                }
+            }
+            steps {
+                script {
+                    sh """
+                        docker build -t ${env.DOCKER_HUB_USERNAME}/app-01:${BUILD_NUMBER} -f application-01.Dockerfile .
+                        docker images
+                    """
+                }
+            }
+        }
+        stage('Building Application 02') {
+            when {
+                expression {
+                    params.BRANCH_NAME == 's8tia'
+                }
+            }
+            steps {
+                script {
+                    sh """
+                        docker build -t ${env.DOCKER_HUB_USERNAME}/app-02:${BUILD_NUMBER} -f application-02.Dockerfile .
+                        docker images
+                    """
+                }
+            }
+        }
+        stage('Login into') {
+            steps {
+                script {
+                    // Login to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIAL_ID}", 
+                    usernameVariable: 'DOCKER_USERNAME', 
+                    passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Use Docker CLI to login
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                    }
+                }
+            }
+        }
+        // stage('Pushing into Docker Hub') {
+        //     steps {
+        //         script {
+        //             sh """
+        //                 docker push ${env.DOCKER_HUB_USERNAME}/app-01:${BUILD_NUMBER}
+        //                 docker push ${env.DOCKER_HUB_USERNAME}/app-02:${BUILD_NUMBER}
+        //                 docker push ${env.DOCKER_HUB_USERNAME}/s8-sonar-scanner:latest
+        //             """
+        //         }
+        //     }
+        // }
+            
+        stage('Test timeout') {
+            steps {
+                script {
+                    sleep 1
+                }
+            }
+        }
+    }
+}
+
+def customFunction() {
+    sh """
+        ls -l
+        pwd
+        uptime
+    """
+}
+
+
+def sanity_check() {
+    if (params.BRANCH_NAME.isEmpty()){
+       echo "The parameter BRANCH_NAME is not set"
+       sh 'exit 2'
+   } 
+}
