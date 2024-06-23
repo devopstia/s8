@@ -1,0 +1,126 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTERY = "devopseasylearning"
+    }
+
+    
+
+    options {
+        timeout(time: 1, unit: 'HOURS') // Set timeout for the entire pipeline
+        timestamps() // Add timestamps to the console output
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 's8tia', description: '')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    git credentialsId: 'jenkins-ssh-agents-private-key',
+                        url: 'git@github.com:DEL-ORG/s8-web-2.git',
+                        branch: "${params.BRANCH_NAME}"
+                }
+            }
+        }
+        stage('List repos') {
+            steps {
+                script {
+                    sh """
+                        echo "Checking the repository ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Scan the code') {
+            steps {
+                script {
+                    sh """
+                        echo "Scaning the code ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Building the code') {
+            steps {
+                script {
+                    sh """
+                        echo "Building the code ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Login into artifactory') {
+            steps {
+                script {
+                    sh """
+                        echo "Login into artifactory ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Pushing the code') {
+            steps {
+                script {
+                    sh """
+                        echo "Pushing the code ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Deploying the application') {
+            steps {
+                script {
+                    sh """
+                        echo "Deploying the application ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Checking if the application is up') {
+            steps {
+                script {
+                    sh """
+                        echo "Checking if the application is up ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Cleanup') {
+            steps {
+                script {
+                    cleanWs()
+                }
+            }
+        }
+    }
+    post {
+        success {
+            // This block will be executed if the pipeline succeeds
+            echo 'Pipeline succeeded!'
+            // You can add further actions here, such as triggering another job or sending notifications
+        }
+        failure {
+            // This block will be executed if the pipeline fails
+            echo 'Pipeline failed!'
+            // You can add further actions here, such as sending notifications or taking corrective measures
+        }
+    }
+}

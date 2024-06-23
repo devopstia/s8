@@ -1,0 +1,93 @@
+//Build periodically
+
+pipeline {
+    agent any
+
+    triggers {
+        cron('H/2 * * * *')
+    }
+
+    stages {
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        cat /etc/*release
+                        docker images
+                    """
+                }
+            }
+        }
+    }
+}
+
+// OR 
+
+pipeline {
+    agent any
+
+    triggers {
+        cron('*/2 * * * *')
+    }
+
+    stages {
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        cat /etc/*release
+                        docker images
+                    """
+                }
+            }
+        }
+    }
+}
+
+// GitHub hook trigger for GITScm polling
+pipeline {
+    agent any
+
+    triggers {
+        githubPush()
+    }
+
+    stages {
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        cat /etc/*release
+                        docker images
+                    """
+                }
+            }
+        }
+    }
+}
+
+// Poll SCM
+pipeline {
+    agent any
+
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
+    stages {
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        cat /etc/*release
+                        docker images
+                    """
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,50 @@
+pipeline {
+    agent {
+        label 'agent-with-ubuntu-22lts' 
+    }
+
+    stages {
+        stage('Create User') {
+            steps {
+                script {
+                    // Script to create a new user
+                    sh '''
+                    #!/bin/bash
+                    # Create the new user and set the password
+                    sudo useradd -m -s /bin/bash "s8paul"
+                    echo "s8paul:12345" | sudo chpasswd
+                    cat /etc/passwd |grep s8paul
+                    sudo cat /etc/shadow |grep s8paul
+                    '''
+                }
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent {
+        label 'aws-custom-agent' 
+    }
+
+    stages {
+        stage('Create User') {
+            steps {
+                script {
+                    // Script to create a new user
+                    sh '''
+                    #!/bin/bash
+                    # Create the new user and set the password
+                    sudo useradd -m -s /bin/bash "s8paul"
+                    echo "s8paul:12345" | sudo chpasswd
+                    cat /etc/passwd |grep s8paul
+                    sudo cat /etc/shadow |grep s8paul
+                    '''
+                }
+            }
+        }
+    }
+}
+
+

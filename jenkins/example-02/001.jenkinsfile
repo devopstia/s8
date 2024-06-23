@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        cat /etc/*release
+                        docker images
+                        docker ps
+                        kubectl get nodes
+                        terraform --version
+                        aws
+                    """
+                }
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent { label 'aws-custom-agent' }
+
+    stages {
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        cat /etc/*release
+                        sudo docker images
+                        sudo docker ps
+                        terraform --version
+                        aws --version
+                    """
+                }
+            }
+        }
+    }
+}
+
+pipeline {
+    agent { label 'agent-with-ubuntu-22lts' }
+
+    stages {
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        #!/bin/bash
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+
+                        wget https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
+                        unzip terraform_1.0.0_linux_amd64.zip
+                        sudo mv terraform /usr/local/bin/
+
+                        # Verify installation
+                        terraform --version
+                    """
+                }
+            }
+        }
+    }
+}
