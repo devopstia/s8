@@ -1,0 +1,120 @@
+// pipeline structure
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTERY = ""
+    }
+
+    triggers {
+        githubPush()
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS') // Set timeout for the entire pipeline
+        timestamps() // Add timestamps to the console output
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 's8tia', description: '')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    sh """
+                        echo "Cloning the repository ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('List repos') {
+            steps {
+                script {
+                    sh """
+                        echo "Checking the repository ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Scan the code') {
+            steps {
+                script {
+                    sh """
+                        echo "Scaning the code ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Building the code') {
+            steps {
+                script {
+                    sh """
+                        echo "Building the code ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Login into artifactory') {
+            steps {
+                script {
+                    sh """
+                        echo "Login into artifactory ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Pushing the code') {
+            steps {
+                script {
+                    sh """
+                        echo "Pushing the code ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Deploying the application') {
+            steps {
+                script {
+                    sh """
+                        echo "Deploying the application ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Checking if the application is up') {
+            steps {
+                script {
+                    sh """
+                        echo "Checking if the application is up ...................."
+                        sleep 5
+                        ls
+                    """
+                }
+            }
+        }
+        stage('Cleanup') {
+            steps {
+                script {
+                    cleanWs()
+                }
+            }
+        }
+    }
+}

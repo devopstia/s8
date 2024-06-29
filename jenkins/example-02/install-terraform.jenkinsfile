@@ -1,0 +1,54 @@
+//https://releases.hashicorp.com/terraform
+
+pipeline {
+    agent { label 'agent-with-ubuntu-22lts' }
+
+    options {
+        timeout(time: 30, unit: 'MINUTES') // Timeout for the entire pipeline
+        buildDiscarder(logRotator(numToKeepStr: '7')) // Discard old builds to save disk space
+        disableConcurrentBuilds() // Ensures that only one build can run at a time
+        timestamps() // Adds timestamps to the console output
+        skipDefaultCheckout() // Skips the default checkout of source code, useful if you're doing a custom checkout
+        // retry(3) // Automatically retries the entire pipeline up to 3 times if it fails
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'feature-s8tia', description: '')
+        string(name: 'TERRAFORM_VERSION', defaultValue: '', description: '')
+        // choice(name: 'TERRAFORM_VERSION', choices: ['', 'Apple', 'Mango', 'Banana'], description: 'Select your favorite fruit')
+        string(name: 'TERRAFORM_BANARY_NAME', defaultValue: 'tf1', description: '')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    git credentialsId: 'del-s8-github-auth',
+                        url: 'https://github.com/DEL-ORG/s8-web-2.git',
+                        branch: "${params.BRANCH_NAME}"
+                }
+            }
+        }
+        stage('ls') {
+            steps {
+                script {
+                    sh """
+                        ls -l /
+                        #!/bin/bash
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+
+                        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        sudo mv terraform ${params.TERRAFORM_BANARY_NAME}
+                        sudo mv ${params.TERRAFORM_BANARY_NAME} /usr/local/bin/
+
+                        # Verify installation
+                        ${params.TERRAFORM_BANARY_NAME} --version
+                    """
+                }
+            }
+        }
+    }
+}
