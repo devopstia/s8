@@ -1,4 +1,14 @@
-//https://releases.hashicorp.com/terraform
+//https://releases.hashicorp.com/terraform/
+
+// PIN=12345 && SSN=00000000 && EMAIL= && FIRSTN= && LASTN= 
+
+// PIN=12345 || SSN=00000000 || EMAIL= || FIRSTN= || LASTN= 
+
+// SSN=00000000
+// EMAIL=
+// FIRSTN=
+// LASTN=
+
 
 pipeline {
     agent { label 'agent-with-ubuntu-22lts' }
@@ -14,9 +24,10 @@ pipeline {
 
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'feature-s8tia', description: '')
-        string(name: 'TERRAFORM_VERSION', defaultValue: '', description: '')
-        // choice(name: 'TERRAFORM_VERSION', choices: ['', 'Apple', 'Mango', 'Banana'], description: 'Select your favorite fruit')
-        string(name: 'TERRAFORM_BANARY_NAME', defaultValue: 'tf1', description: '')
+        // string(name: 'TERRAFORM_VERSION', defaultValue: '', description: '')
+        choice(name: 'TERRAFORM_VERSION', choices: ['', '1.8.4', '1.0.0', '0.15.0'], description: 'Select the version that you want to install')
+        choice(name: 'TERRAFORM_BANARY_NAME', choices: ['', 'tf1.8.4', 'tf1.0.0', 'tf0.15.0'], description: 'Select the version that you want to install')
+        // string(name: 'TERRAFORM_BANARY_NAME', defaultValue: 'tf1', description: '')
     }
 
     stages {
@@ -35,10 +46,11 @@ pipeline {
                     sh """
                         ls -l /
                         #!/bin/bash
+
                         # Install dependencies
                         sudo apt-get update -y
                         sudo apt-get install -y wget unzip
-
+                        rm -rf *
                         wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
                         unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
                         sudo mv terraform ${params.TERRAFORM_BANARY_NAME}
@@ -47,6 +59,507 @@ pipeline {
                         # Verify installation
                         ${params.TERRAFORM_BANARY_NAME} --version
                     """
+                }
+            }
+        }
+    }
+}
+
+// IF, ELIF, ELSE
+pipeline {
+    agent { label 'agent-with-ubuntu-22lts' }
+
+    environment {
+        TERRAFORM_BANARY_NAME_1 = 'tf1.8.4'
+        TERRAFORM_BANARY_NAME_2 = 'tf1.0.0'
+        TERRAFORM_BANARY_NAME_3 = 'tf0.15.0'
+    }
+
+    options {
+        timeout(time: 30, unit: 'MINUTES') // Timeout for the entire pipeline
+        buildDiscarder(logRotator(numToKeepStr: '7')) // Discard old builds to save disk space
+        disableConcurrentBuilds() // Ensures that only one build can run at a time
+        timestamps() // Adds timestamps to the console output
+        skipDefaultCheckout() // Skips the default checkout of source code, useful if you're doing a custom checkout
+        // retry(3) // Automatically retries the entire pipeline up to 3 times if it fails
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'feature-s8tia', description: '')
+        // string(name: 'TERRAFORM_VERSION', defaultValue: '', description: '')
+        choice(name: 'TERRAFORM_VERSION', choices: ['', '1.8.4', '1.0.0', '0.15.0'], description: 'Select the version that you want to install')
+        // choice(name: 'TERRAFORM_BANARY_NAME', choices: ['', 'tf1.8.4', 'tf1.0.0', 'tf0.15.0'], description: 'Select the version that you want to install')
+        // string(name: 'TERRAFORM_BANARY_NAME', defaultValue: 'tf1', description: '')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    git credentialsId: 'del-s8-github-auth',
+                        url: 'https://github.com/DEL-ORG/s8-web-2.git',
+                        branch: "${params.BRANCH_NAME}"
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    def TERRAFORM_BANARY_NAME_1 = 'tf1.8.4'
+                    def TERRAFORM_BANARY_NAME_2 = 'tf1.0.0'
+                    def TERRAFORM_BANARY_NAME_3 = 'tf0.15.0'
+
+                    if (params.TERRAFORM_VERSION == '1.8.4') {
+                        sh """
+                        ls -l /
+                        #!/bin/bash
+
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+                        rm -rf *
+                        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        sudo mv terraform ${TERRAFORM_BANARY_NAME_1}
+                        sudo mv ${TERRAFORM_BANARY_NAME_1} /usr/local/bin/
+
+                        # Verify installation
+                        ${TERRAFORM_BANARY_NAME_1} --version
+                    """
+
+                    } 
+                    else if (params.TERRAFORM_VERSION == '1.0.0') {
+                        sh """
+                        ls -l /
+                        #!/bin/bash
+
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+                        rm -rf *
+                        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        sudo mv terraform ${TERRAFORM_BANARY_NAME_2}
+                        sudo mv ${TERRAFORM_BANARY_NAME_2} /usr/local/bin/
+
+                        # Verify installation
+                        ${TERRAFORM_BANARY_NAME_2} --version
+                    """
+                    } 
+                    else if (params.TERRAFORM_VERSION == '0.15.0') {
+                        sh """
+                        ls -l /
+                        #!/bin/bash
+
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+                        rm -rf *
+                        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        sudo mv terraform ${TERRAFORM_BANARY_NAME_3}
+                        sudo mv ${TERRAFORM_BANARY_NAME_3} /usr/local/bin/
+
+                        # Verify installation
+                        ${TERRAFORM_BANARY_NAME_3} --version
+                    """
+                    } 
+                    else {
+                        error 'Unknown terraform version'
+                    }
+                }
+            }
+        }
+        // stage('ls') {
+        //     steps {
+        //         script {
+        //             sh """
+        //                 ls -l /
+        //                 #!/bin/bash
+
+        //                 # Install dependencies
+        //                 sudo apt-get update -y
+        //                 sudo apt-get install -y wget unzip
+        //                 rm -rf *
+        //                 wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+        //                 unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+        //                 sudo mv terraform ${params.TERRAFORM_BANARY_NAME}
+        //                 sudo mv ${params.TERRAFORM_BANARY_NAME} /usr/local/bin/
+
+        //                 # Verify installation
+        //                 ${params.TERRAFORM_BANARY_NAME} --version
+        //             """
+        //         }
+        //     }
+        // }
+    }
+}
+
+
+// IF, ELIF, ELSE
+pipeline {
+    agent { label 'agent-with-ubuntu-22lts' }
+
+    environment {
+        TERRAFORM_BANARY_NAME_1 = 'tf1.8.4'
+        TERRAFORM_BANARY_NAME_2 = 'tf1.0.0'
+        TERRAFORM_BANARY_NAME_3 = 'tf0.15.0'
+    }
+
+    options {
+        timeout(time: 30, unit: 'MINUTES') // Timeout for the entire pipeline
+        buildDiscarder(logRotator(numToKeepStr: '7')) // Discard old builds to save disk space
+        disableConcurrentBuilds() // Ensures that only one build can run at a time
+        timestamps() // Adds timestamps to the console output
+        skipDefaultCheckout() // Skips the default checkout of source code, useful if you're doing a custom checkout
+        // retry(3) // Automatically retries the entire pipeline up to 3 times if it fails
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'feature-s8tia', description: '')
+        // string(name: 'TERRAFORM_VERSION', defaultValue: '', description: '')
+        choice(name: 'TERRAFORM_VERSION', choices: ['', '1.8.4', '1.0.0', '0.15.0'], description: 'Select the version that you want to install')
+        // choice(name: 'TERRAFORM_BANARY_NAME', choices: ['', 'tf1.8.4', 'tf1.0.0', 'tf0.15.0'], description: 'Select the version that you want to install')
+        // string(name: 'TERRAFORM_BANARY_NAME', defaultValue: 'tf1', description: '')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    git credentialsId: 'del-s8-github-auth',
+                        url: 'https://github.com/DEL-ORG/s8-web-2.git',
+                        branch: "${params.BRANCH_NAME}"
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    def TERRAFORM_BANARY_NAME_1 = 'tf1.8.4'
+                    def TERRAFORM_BANARY_NAME_2 = 'tf1.0.0'
+                    def TERRAFORM_BANARY_NAME_3 = 'tf0.15.0'
+
+                    if (params.TERRAFORM_VERSION == '1.8.4') {
+                        sh """
+                        ls -l /
+                        #!/bin/bash
+
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+                        rm -rf *
+                        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        sudo mv terraform ${TERRAFORM_BANARY_NAME_1}
+                        sudo mv ${TERRAFORM_BANARY_NAME_1} /usr/local/bin/
+
+                        # Verify installation
+                        ${TERRAFORM_BANARY_NAME_1} --version
+                    """
+
+                    } 
+                    else if (params.TERRAFORM_VERSION == '1.0.0') {
+                        sh """
+                        ls -l /
+                        #!/bin/bash
+
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+                        rm -rf *
+                        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        sudo mv terraform ${TERRAFORM_BANARY_NAME_2}
+                        sudo mv ${TERRAFORM_BANARY_NAME_2} /usr/local/bin/
+
+                        # Verify installation
+                        ${TERRAFORM_BANARY_NAME_2} --version
+                    """
+                    } 
+                    else if (params.TERRAFORM_VERSION == '0.15.0') {
+                        sh """
+                        ls -l /
+                        #!/bin/bash
+
+                        # Install dependencies
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget unzip
+                        rm -rf *
+                        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+                        sudo mv terraform ${TERRAFORM_BANARY_NAME_3}
+                        sudo mv ${TERRAFORM_BANARY_NAME_3} /usr/local/bin/
+
+                        # Verify installation
+                        ${TERRAFORM_BANARY_NAME_3} --version
+                    """
+                    } 
+                    else {
+                        error 'Unknown terraform version'
+                    }
+                }
+            }
+        }
+        // stage('ls') {
+        //     steps {
+        //         script {
+        //             sh """
+        //                 ls -l /
+        //                 #!/bin/bash
+
+        //                 # Install dependencies
+        //                 sudo apt-get update -y
+        //                 sudo apt-get install -y wget unzip
+        //                 rm -rf *
+        //                 wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+        //                 unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+        //                 sudo mv terraform ${params.TERRAFORM_BANARY_NAME}
+        //                 sudo mv ${params.TERRAFORM_BANARY_NAME} /usr/local/bin/
+
+        //                 # Verify installation
+        //                 ${params.TERRAFORM_BANARY_NAME} --version
+        //             """
+        //         }
+        //     }
+        // }
+    }
+}
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Example') {
+            steps {
+                script {
+                    def condition = 'B'
+
+                    if (condition == 'A') {
+                        echo 'Condition is A'
+                        // Add steps for condition A
+                    } else if (condition == 'B') {
+                        echo 'Condition is B'
+                        // Add steps for condition B
+                    } else {
+                        echo 'Condition is neither A nor B'
+                        // Add steps for the else condition
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Example') {
+            steps {
+                script {
+                    def condition = 'B'
+
+                    if (condition == 'A') {
+                        echo 'Condition is A'
+                        // Add steps for condition A
+                    } else if (condition == 'B') {
+                        echo 'Condition is B'
+                        // Add steps for condition B
+                    } else {
+                        echo 'Condition is neither A nor B'
+                        // Add steps for the else condition
+                    }
+                }
+            }
+        }
+    }
+}
+
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'CONDITION', defaultValue: 'B', description: 'Condition to check')
+    }
+
+    stages {
+        stage('Condition A') {
+            when {
+                expression {
+                    return params.CONDITION == 'A'
+                }
+            }
+            steps {
+                echo 'Condition is A'
+                // Add steps for condition A
+            }
+        }
+        stage('Condition B') {
+            when {
+                expression {
+                    return params.CONDITION == 'B'
+                }
+            }
+            steps {
+                echo 'Condition is B'
+                // Add steps for condition B
+            }
+        }
+        stage('Condition Neither A Nor B') {
+            when {
+                expression {
+                    return params.CONDITION != 'A' || params.CONDITION != 'B'
+                }
+            }
+            steps {
+                echo 'Condition is neither A nor B'
+                // Add steps for the else condition
+            }
+        }
+    }
+}
+
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'CONDITION', defaultValue: 'B', description: 'Condition to check')
+    }
+
+    stages {
+        stage('Example') {
+            steps {
+                script {
+                    def condition = params.CONDITION
+
+                    if (condition == 'A') {
+                        echo 'Condition is A'
+                        // Add steps for condition A
+                    } else if (condition == 'B') {
+                        echo 'Condition is B'
+                        // Add steps for condition B
+                    } else {
+                        echo 'Condition is neither A nor B'
+                        // Add steps for the else condition
+                    }
+                }
+            }
+        }
+    }
+}
+
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'DEPLOY_ENV', choices: ['DEV', 'QA', 'STG', 'PRD'], description: 'Select the deployment environment')
+    }
+
+    stages {
+        stage('Deploy to DEV') {
+            when {
+                expression {
+                    return params.DEPLOY_ENV == 'DEV'
+                }
+            }
+            steps {
+                echo 'Deploying to DEV environment'
+                // Add steps for DEV deployment
+            }
+        }
+        stage('Deploy to QA') {
+            when {
+                expression {
+                    return params.DEPLOY_ENV == 'QA'
+                }
+            }
+            steps {
+                echo 'Deploying to QA environment'
+                // Add steps for QA deployment
+            }
+        }
+        stage('Deploy to STG') {
+            when {
+                expression {
+                    return params.DEPLOY_ENV == 'STG'
+                }
+            }
+            steps {
+                echo 'Deploying to STG environment'
+                // Add steps for STG deployment
+            }
+        }
+        stage('Deploy to PRD') {
+            when {
+                expression {
+                    return params.DEPLOY_ENV == 'PRD'
+                }
+            }
+            steps {
+                echo 'Deploying to PRD environment'
+                // Add steps for PRD deployment
+            }
+        }
+    }
+}
+
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'DEPLOY_ENV', choices: ['DEV', 'QA', 'STG', 'PRD'], description: 'Select the deployment environment')
+    }
+
+    stages {
+        stage('Deploy') {
+            steps {
+                script {
+                    if (params.DEPLOY_ENV == 'DEV') {
+                        echo 'Deploying to DEV environment'
+                        // Add steps for DEV deployment
+                    } else if (params.DEPLOY_ENV == 'QA') {
+                        echo 'Deploying to QA environment'
+                        // Add steps for QA deployment
+                    } else if (params.DEPLOY_ENV == 'STG') {
+                        echo 'Deploying to STG environment'
+                        // Add steps for STG deployment
+                    } else if (params.DEPLOY_ENV == 'PRD') {
+                        echo 'Deploying to PRD environment'
+                        // Add steps for PRD deployment
+                    } else {
+                        error 'Unknown deployment environment'
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'CONDITION', defaultValue: 'B', description: 'Condition to check')
+    }
+
+    stages {
+        stage('Example') {
+            steps {
+                script {
+                    if (params.CONDITION == 'A') {
+                        echo 'Condition is A'
+                        // Add steps for condition A
+                    } else if (params.CONDITION == 'B') {
+                        echo 'Condition is B'
+                        // Add steps for condition B
+                    } else {
+                        echo 'Condition is neither A nor B'
+                        // Add steps for the else condition
+                    }
                 }
             }
         }

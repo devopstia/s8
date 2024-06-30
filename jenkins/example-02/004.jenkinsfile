@@ -118,3 +118,75 @@ pipeline {
         }
     }
 }
+
+
+node('aws-custom-agent') {
+    def DOCKER_REGISTERY = ""
+
+    properties([
+        pipelineTriggers([githubPush()]),
+        parameters([
+            string(name: 'BRANCH_NAME', defaultValue: 's8tia', description: '')
+        ])
+    ])
+
+    stage('Clone Repository') {
+        sh """
+            echo "Cloning the repository ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('List repos') {
+        sh """
+            echo "Checking the repository ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('Scan the code') {
+        sh """
+            echo "Scanning the code ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('Building the code') {
+        sh """
+            echo "Building the code ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('Login into artifactory') {
+        sh """
+            echo "Login into artifactory ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('Pushing the code') {
+        sh """
+            echo "Pushing the code ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('Deploying the application') {
+        sh """
+            echo "Deploying the application ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('Checking if the application is up') {
+        sh """
+            echo "Checking if the application is up ...................."
+            sleep 5
+            ls
+        """
+    }
+    stage('Cleanup') {
+        cleanWs()
+    }
+}
