@@ -1,0 +1,110 @@
+pipeline {
+    agent { label 'agent-with-ubuntu-22lts' }
+    options {
+        timeout(time: 30, unit: 'MINUTES') // Timeout for the entire pipeline
+        buildDiscarder(logRotator(numToKeepStr: '7')) // Discard old builds to save disk space
+        disableConcurrentBuilds() // Ensures that only one build can run at a time
+        timestamps() // Adds timestamps to the console output
+        skipDefaultCheckout() // Skips the default checkout of source code, useful if you're doing a custom checkout
+        // retry(3) // Automatically retries the entire pipeline up to 3 times if it fails
+    }
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'feature-s8tia', description: '')
+        choice(name: 'TERRAFORM_VERSION', choices: ['', '1.8.4', '1.0.0', '0.15.0'], description: 'Select the version that you want to install')
+    }
+
+    stages {
+        stage ('Check Allow Users') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        def build_id = env.BUILD_USER_ID
+                        def build_user = env.BUILD_USER
+                        echo "build_id : $build_id"
+                        if (build_id in ['admin', 's8giress', 's8anatole']) {
+                            echo "Hi $build_user, You are allowed to run this job"
+                        } else {
+                            error "Hi $build_user, You are not allowed to run this job"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Sanity Check') {
+            steps {
+                script {
+                    sanityCheck()
+                }
+            }
+        }
+        stage('Clone Repository') {
+            steps {
+                script {
+                    git credentialsId: 'del-s8-github-auth',
+                        url: 'https://github.com/DEL-ORG/s8-web-2.git',
+                        branch: "${params.BRANCH_NAME}"
+                }
+            }
+        }
+    }
+}
+
+
+def installingTerraform() {
+    sh """
+        #!/bin/
+        # Install dependencies
+        sudo apt-get update -y
+        sudo apt-get install -y wget unzip
+        rm -rf *
+        wget https://releases.hashicorp.com/terraform/${params.TERRAFORM_VERSION}/terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+        unzip terraform_${params.TERRAFORM_VERSION}_linux_amd64.zip
+        sudo rm -rf /usr/local/bin/terraform
+        sudo mv terraform /usr/local/bin/
+        # Verify installation
+        terraform --version
+    """
+}
+
+def sanityCheck() {
+    if (params.BRANCH_NAME.isEmpty()){
+        echo "The parameter BRANCH_NAME is not set"
+        sh 'exit 2'
+    }
+    if (params.TERRAFORM_VERSION.isEmpty()){
+        echo "The parameter TERRAFORM_VERSION is not set"
+        sh 'exit 2'
+    }  
+}
+
+
+
+pipeline {
+    agent any
+    stages {
+        stage ('Check Allow Users') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        def build_id = env.BUILD_USER_ID
+                        def build_user = env.BUILD_USER
+                        def build_user_email = env.BUILD_USER_EMAIL
+                        def build_user_full_name = env.BUILD_USER_FULL_NAME
+                        def build_number = env.BUILD_NUMBER
+                        def build_url = env.BUILD_URL
+                        def build_timestamp = currentBuild.startTimeInMillis
+
+                        echo "Build User ID: $build_id"
+                        echo "Build User: $build_user"
+                        echo "Build User Email: $build_user_email"
+                        echo "Build User Full Name: $build_user_full_name"
+                        echo "Build Number: $build_number"
+                        echo "Build URL: $build_url"
+                        echo "Build Timestamp: ${new Date(build_timestamp)}"
+                    }
+                }
+            }
+        }
+    }
+}
