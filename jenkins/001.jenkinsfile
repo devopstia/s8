@@ -2,9 +2,9 @@ pipeline {
     agent any
     
     parameters {
-        string(name: 'FIRST_NAME', defaultValue: '', description: 'Enter your first name')
-        string(name: 'LAST_NAME', defaultValue: '', description: 'Enter your last name')
-        string(name: 'PIN', defaultValue: '', description: 'Enter your PIN')
+        string(name: 'FIRST_NAME', defaultValue: 'Helene', description: 'Enter your first name')
+        string(name: 'LAST_NAME', defaultValue: 'Bayombi', description: 'Enter your last name')
+        string(name: 'PIN', defaultValue: 'abcd', description: 'Enter your PIN')
         choice(name: 'FRUITS', choices: ['', 'Apple', 'Mango', 'Banana'], description: 'Select your favorite fruit')
         booleanParam(name: 'BOOL_PARAM', defaultValue: false, description: 'Boolean parameter')
     }
