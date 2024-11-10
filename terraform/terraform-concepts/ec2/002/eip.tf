@@ -1,9 +1,14 @@
 # Create the Elastic IP
 resource "aws_eip" "jenkins_eip" {
   vpc = true
-  tags = merge(var.tags, {
-    Name = "Jenkins-master-eip"
-  })
+  tags = {
+    "Name"           = "Jenkins-master-eip"
+    "owner"          = "EK TECH SOFTWARE SOLUTION"
+    "environment"    = "dev"
+    "project"        = "del"
+    "create_by"      = "Terraform"
+    "cloud_provider" = "aws"
+  }
 }
 
 # Associate the Elastic IP with the instance

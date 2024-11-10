@@ -30,7 +30,12 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, {
-    Name = "ec2_security_group"
-  })
+  tags = {
+    "Name"           = "ec2_security_group"
+    "owner"          = "EK TECH SOFTWARE SOLUTION"
+    "environment"    = "dev"
+    "project"        = "del"
+    "create_by"      = "Terraform"
+    "cloud_provider" = "aws"
+  }
 }

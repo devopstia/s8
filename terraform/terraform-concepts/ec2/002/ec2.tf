@@ -1,6 +1,6 @@
 resource "aws_instance" "ec2" {
   ami           = data.aws_ami.jenkins_master_ami.id
-  instance_type = "t2.micro"
+  instance_type = "t2.medium"
 
   # Add a key pair for SSH access
   key_name = "terraform-aws"
@@ -17,7 +17,12 @@ resource "aws_instance" "ec2" {
     volume_type = "gp3"   # Set volume type to gp3
   }
 
-  tags = merge(var.tags, {
-    Name = "jenkins-master"
-  })
+  tags = {
+    "Name"           = "Jenkins-master"
+    "owner"          = "EK TECH SOFTWARE SOLUTION"
+    "environment"    = "dev"
+    "project"        = "del"
+    "create_by"      = "Terraform"
+    "cloud_provider" = "aws"
+  }
 }
