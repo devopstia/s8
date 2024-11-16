@@ -1,15 +1,23 @@
 variable "aws_region" {
-    type = string
-    default = "us-east-1"
+  type = string
 }
 
 variable "tags" {
-    type = map(string)
-    default = {
-    "owner"          = "EK TECH SOFTWARE SOLUTION"
-    "environment"    = "dev"
-    "project"        = "del"
-    "create_by"      = "Terraform"
-    "cloud_provider" = "aws"
-  }
+  type = map(string)
+}
+
+variable "root_volume" {
+  type = number
+}
+
+variable "resource_type" {
+  type = string
+}
+
+variable "instance_type" {
+  type = string
+}
+
+variable "key_name" {
+  type = string
 }

@@ -30,7 +30,12 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, {
-    Name = format("%s-%s-sg", var.tags["environment"], var.tags["project"])
-  })
+  tags = {
+    Name           = "${var.tags["environment"]}-${var.tags["project"]}-eks-control"
+    owner          = var.tags["owner"]
+    environment    = var.tags["environment"]
+    project        = var.tags["project"]
+    create_by      = var.tags["create_by"]
+    cloud_provider = var.tags["cloud_provider"]
+  }
 }
