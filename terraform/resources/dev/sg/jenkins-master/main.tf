@@ -13,6 +13,16 @@ terraform {
   }
 }
 
+terraform {
+  backend "s3" {
+    bucket         = "development-del-s8-tf-state"
+    key            = "jenkins-master-sg/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "development-del-s8-tf-state-lock"
+    encrypt        = true
+  }
+}
+
 module "jenkins-sg" {
   source     = "../../../../modules/sg"
   aws_region = "us-east-1"
@@ -21,6 +31,7 @@ module "jenkins-sg" {
     22,
     80,
     443,
+    9000,
     8080
   ]
   tags = {

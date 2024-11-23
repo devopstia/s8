@@ -13,6 +13,16 @@ terraform {
   }
 }
 
+terraform {
+  backend "s3" {
+    bucket         = "development-del-s8-tf-state"
+    key            = "bastion-host-sg/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "development-del-s8-tf-state-lock"
+    encrypt        = true
+  }
+}
+
 module "bastion-host-sg" {
   source     = "../../../../modules/sg"
   aws_region = "us-east-1"
