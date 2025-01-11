@@ -145,27 +145,27 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# # Create Target Groups
-# resource "aws_lb_target_group" "jenkins" {
-#   name        = "jenkins-tg"
-#   port        = 8080
-#   protocol    = "HTTP"
-#   vpc_id      = var.vpc_id
-#   target_type = "instance"
+# Create Target Groups
+resource "aws_lb_target_group" "jenkins" {
+  name        = "jenkins-tg"
+  port        = 8080
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "instance"
 
-#   health_check {
-#     path                = "/login"
-#     interval            = 30
-#     timeout             = 5
-#     healthy_threshold   = 2
-#     unhealthy_threshold = 2
-#   }
+  health_check {
+    path                = "/login"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
 
-#   tags = {
-#     Name        = "jenkins-tg"
-#     Environment = "development"
-#   }
-# }
+  tags = {
+    Name        = "jenkins-tg"
+    Environment = "development"
+  }
+}
 
 # HTTPS Listener for Application Traffic
 resource "aws_lb_listener" "https_listener" {
@@ -232,19 +232,19 @@ resource "aws_lb_listener_rule" "yellow" {
   }
 }
 
-# # Define Routing Rules for the HTTPS Listener
-# resource "aws_lb_listener_rule" "jenkins" {
-#   listener_arn = aws_lb_listener.https.arn
-#   priority     = 103
+# Define Routing Rules for the HTTPS Listener
+resource "aws_lb_listener_rule" "jenkins" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 103
 
-#   condition {
-#     host_header {
-#       values = ["jenkins.devopseasylearnings.com"]
-#     }
-#   }
+  condition {
+    host_header {
+      values = ["jenkins.devopseasylearnings.com"]
+    }
+  }
 
-#   action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.jenkins.arn
-#   }
-# }
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.jenkins.arn
+  }
+}

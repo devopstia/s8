@@ -25,10 +25,10 @@ resource "aws_security_group" "jenkins_sg" {
   #   }
 
   ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = ["0.0.0.0/0"]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -42,7 +42,7 @@ resource "aws_security_group" "jenkins_sg" {
 # Launch Template for Jenkins EC2 instances
 resource "aws_launch_template" "jenkins_lt" {
   name          = "jenkins-launch-template"
-  image_id      = "ami-0832a077d6dad7d7e"
+  image_id      = "ami-064833e46532925b4"
   instance_type = "t2.medium"
   key_name      = "terraform-aws"
 

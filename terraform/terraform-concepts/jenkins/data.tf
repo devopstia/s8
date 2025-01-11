@@ -12,18 +12,8 @@ data "aws_security_group" "alb_sg" {
 }
 
 # Data source to get ALB Target Group by name
-data "aws_lb_target_group" "blue_target_group" {
-  name = "blue-tg"
-}
-
-# Data source to get ALB Target Group by name
-data "aws_lb_target_group" "green_target_group" {
-  name = "green-tg"
-}
-
-# Data source to get ALB Target Group by name
-data "aws_lb_target_group" "yellow_target_group" {
-  name = "yellow-tg"
+data "aws_lb_target_group" "jenkins_target_group" {
+  name = "jenkins-tg"
 }
 
 # Data source to get ALB by name
