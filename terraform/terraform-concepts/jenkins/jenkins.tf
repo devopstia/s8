@@ -42,7 +42,7 @@ resource "aws_security_group" "jenkins_sg" {
 # Launch Template for Jenkins EC2 instances
 resource "aws_launch_template" "jenkins_lt" {
   name          = "jenkins-launch-template"
-  image_id      = "ami-064833e46532925b4"
+  image_id      = "ami-0922e9faf5f829bb7"
   instance_type = "t2.medium"
   key_name      = "terraform-aws"
 
@@ -62,7 +62,8 @@ resource "aws_launch_template" "jenkins_lt" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "jenkins-master"
+      Name   = "jenkins-master"
+      backup = "true"
     }
   }
 }
