@@ -1,5 +1,5 @@
 resource "aws_instance" "my_ec2_instance" {
-  ami           = "ami-0866a3c8686eaeeba-tia"
+  ami           = "ami-0866a3c8686eaeeba"
   instance_type = "t2.micro"
 
   # Add a key pair for SSH access
