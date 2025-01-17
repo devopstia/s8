@@ -13,8 +13,8 @@ resource "aws_instance" "ec2" {
 
   # Specify the root block device to set the volume size to 30 GB and type to gp3
   root_block_device {
-    volume_size = 30      # Size in GB
-    volume_type = "gp3"   # Set volume type to gp3
+    volume_size = 30    # Size in GB
+    volume_type = "gp3" # Set volume type to gp3
   }
 
   tags = {
