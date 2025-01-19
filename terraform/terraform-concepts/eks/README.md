@@ -6,4 +6,4 @@
 
 aws eks update-kubeconfig --name [cluster_name] --region [region]
 
-Example: aws eks update-kubeconfig --name my-eks-cluster --region us-east-1
+Example: aws eks update-kubeconfig --name eks --region us-east-1

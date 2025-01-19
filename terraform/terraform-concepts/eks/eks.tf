@@ -48,7 +48,7 @@ resource "aws_eks_cluster" "eks" {
   role_arn = aws_iam_role.eks_cluster.arn
 
   # Desired Kubernetes master version
-  version = "1.20"
+  version = "1.30"
 
   vpc_config {
     # Indicates whether or not the Amazon EKS private API server endpoint is enabled
@@ -59,8 +59,8 @@ resource "aws_eks_cluster" "eks" {
 
     # Must be in at least two different availability zones
     subnet_ids = [
-      aws_subnet.public_1.id,
-      aws_subnet.public_2.id,
+      # aws_subnet.public_1.id,
+      # aws_subnet.public_2.id,
       aws_subnet.private_1.id,
       aws_subnet.private_2.id
     ]

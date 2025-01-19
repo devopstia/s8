@@ -16,9 +16,9 @@ resource "aws_subnet" "public_1" {
 
   # A map of tags to assign to the resource.
   tags = {
-    Name                        = "public-us-east-1a"
-    "kubernetes.io/cluster/eks" = "shared"
-    "kubernetes.io/role/elb"    = 1
+    Name = "public-us-east-1a"
+    # "kubernetes.io/cluster/eks" = "shared"
+    "kubernetes.io/role/elb" = 1
   }
 }
 
@@ -37,9 +37,9 @@ resource "aws_subnet" "public_2" {
 
   # A map of tags to assign to the resource.
   tags = {
-    Name                        = "public-us-east-1b"
-    "kubernetes.io/cluster/eks" = "shared"
-    "kubernetes.io/role/elb"    = 1
+    Name = "public-us-east-1b"
+    # "kubernetes.io/cluster/eks" = "shared"
+    "kubernetes.io/role/elb" = 1
   }
 }
 
@@ -55,8 +55,8 @@ resource "aws_subnet" "private_1" {
 
   # A map of tags to assign to the resource.
   tags = {
-    Name                              = "private-us-east-1a"
-    "kubernetes.io/cluster/eks"       = "shared"
+    Name = "private-us-east-1a"
+    # "kubernetes.io/cluster/eks"       = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
 }
@@ -73,8 +73,8 @@ resource "aws_subnet" "private_2" {
 
   # A map of tags to assign to the resource.
   tags = {
-    Name                              = "private-us-east-1b"
-    "kubernetes.io/cluster/eks"       = "shared"
+    Name = "private-us-east-1b"
+    # "kubernetes.io/cluster/eks"       = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
 }
