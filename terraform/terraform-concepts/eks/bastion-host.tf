@@ -2,7 +2,7 @@ resource "aws_instance" "example" {
   ami           = "ami-04b4f1a9cf54c11d0" # Replace with the AMI ID you want to use
   instance_type = "t2.micro"              # Replace with your desired instance type
   # Optional: Add a tag to the instance
-  key_name  = "terraform-aws"
+  key_name  = "s8"
   subnet_id = aws_subnet.public_2.id
   tags = {
     Name = "bastion-host"

@@ -1,0 +1,25 @@
+apiVersion: v1
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::788210522308:role/eks-node-group-general
+      username: system:node:{{EC2PrivateDNSName}}
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-01-25T19:25:38Z"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:mapRoles: {}
+    manager: vpcLambda
+    operation: Update
+    time: "2025-01-25T19:25:38Z"
+  name: aws-auth
+  namespace: kube-system
+  resourceVersion: "8080"
+  uid: d3b4be57-b68e-485f-a04b-25032e59672a
